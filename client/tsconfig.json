@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "isolatedModules": true,
+    "lib": ["esnext", "dom"],
+    "target": "esnext",
+    "moduleResolution": "nodenext",
+  }
+}
