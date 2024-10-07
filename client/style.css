@@ -29,17 +29,22 @@ body {
   color: var(--terminal-text-color);
   font-size: var(--terminal-font-size);
   font-family: monospace;
+
+  --cursor-position: 0;
 }
 
 .line {
   display: inline-block;
   white-space: pre;
+  position: relative;
 
-  &.cursor::after {
+  &.cursor::before {
     content: "";
-    display: inline-block;
-    margin-left: 0.5em;
-    margin-bottom: -0.1em;
+    display: block;
+    position: absolute;
+    margin-left: 2ch;
+    top: 0.2em;
+    left: calc(var(--cursor-position) * 1ch);
     width: 0.5em;
     height: 1em;
     background-color: var(--terminal-text-color);

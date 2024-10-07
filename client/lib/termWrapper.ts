@@ -1,14 +1,18 @@
 export class TermWrapper {
   private currentLine!: HTMLDivElement;
-  private currentLineBuffer: string = "";
-
+  private currentLineBuffer = "";
+  private cursorPosition = 0;
   private promptMode: boolean = false;
+  private history: string[] = [];
+  private historyIndex = 0;
+  private undoHistoryLine = "";
 
   private newLineListeners: ((line: string) => void)[] = [];
 
   constructor(private appNode: HTMLElement) {}
 
   addLine() {
+    this.cursorPosition = 0;
     let showCursor = this.currentLine?.classList.contains("cursor");
     if (showCursor) {
       this.hideCursor();
@@ -32,6 +36,10 @@ export class TermWrapper {
       this.currentLine.textContent += "> ";
     }
     this.currentLine.textContent += this.currentLineBuffer;
+    this.appNode.style.setProperty(
+      "--cursor-position",
+      (this.cursorPosition - 1 + Number(this.promptMode)).toString(),
+    );
   }
 
   init() {
@@ -39,6 +47,11 @@ export class TermWrapper {
     this.appNode.classList.add("terminal");
     this.appNode.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
+        if (this.promptMode) {
+          this.history.push(this.currentLineBuffer);
+          this.historyIndex = this.history.length;
+          this.undoHistoryLine = "";
+        }
         this.newLineListeners.forEach((listener) =>
           listener(this.currentLineBuffer),
         );
@@ -47,8 +60,47 @@ export class TermWrapper {
         if (this.currentLineBuffer.length === 0) {
           return;
         }
-        this.currentLineBuffer = this.currentLineBuffer.slice(0, -1);
+        this.currentLineBuffer =
+          this.currentLineBuffer.slice(0, this.cursorPosition - 1) +
+          this.currentLineBuffer.slice(this.cursorPosition);
+        this.cursorPosition--;
         this.renderCurrentLine();
+      } else if (event.key === "ArrowLeft") {
+        if (this.promptMode) {
+          this.cursorPosition = Math.max(0, this.cursorPosition - 1);
+          this.renderCurrentLine();
+        }
+      } else if (event.key === "ArrowRight") {
+        if (this.promptMode) {
+          this.cursorPosition = Math.min(
+            this.currentLineBuffer.length,
+            this.cursorPosition + 1,
+          );
+          this.renderCurrentLine();
+        }
+      } else if (event.key === "ArrowUp") {
+        if (this.promptMode && this.historyIndex > 0) {
+          if (this.historyIndex === this.history.length) {
+            this.undoHistoryLine = this.currentLineBuffer;
+          }
+          this.historyIndex--;
+          this.currentLineBuffer = this.history[this.historyIndex];
+          this.cursorPosition = this.currentLineBuffer.length;
+          this.renderCurrentLine();
+        }
+      } else if (event.key === "ArrowDown") {
+        if (this.promptMode && this.historyIndex < this.history.length) {
+          this.historyIndex++;
+          this.currentLineBuffer =
+            this.historyIndex === this.history.length
+              ? this.undoHistoryLine
+              : this.history[this.historyIndex];
+          this.cursorPosition = this.currentLineBuffer.length;
+          this.renderCurrentLine();
+          if (this.historyIndex === this.history.length) {
+            this.undoHistoryLine = "";
+          }
+        }
       } else if (
         event.key !== "Tab" &&
         event.key !== "Shift" &&
@@ -57,8 +109,11 @@ export class TermWrapper {
         event.ctrlKey === false &&
         this.promptMode
       ) {
-        console.log("domEvent", event);
-        this.currentLineBuffer += event.key;
+        this.currentLineBuffer =
+          this.currentLineBuffer.slice(0, this.cursorPosition) +
+          event.key +
+          this.currentLineBuffer.slice(this.cursorPosition);
+        this.cursorPosition++;
         this.renderCurrentLine();
       }
     });
@@ -70,6 +125,7 @@ export class TermWrapper {
       const text = event.clipboardData?.getData("text");
       if (text) {
         this.currentLineBuffer += text;
+        this.cursorPosition += text.length;
         this.renderCurrentLine();
       }
     });
@@ -88,11 +144,21 @@ export class TermWrapper {
   }
 
   write(text: string) {
-    this.currentLine.textContent += text;
+    if (this.cursorPosition === this.currentLineBuffer.length) {
+      this.currentLineBuffer += text;
+    } else {
+      this.currentLineBuffer =
+        this.currentLineBuffer.slice(0, this.cursorPosition) +
+        text +
+        this.currentLineBuffer.slice(this.cursorPosition);
+    }
+    this.cursorPosition += text.length;
+    this.renderCurrentLine();
   }
 
   writeln(text: string) {
     this.write(text);
+    this.currentLineBuffer = "";
     this.addLine();
   }
 
