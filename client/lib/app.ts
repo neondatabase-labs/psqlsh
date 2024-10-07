@@ -17,7 +17,15 @@ export class App {
     termWrapper.hideCursor();
     termWrapper.addLine();
     termWrapper.writeln(`Starting the database connection...`);
-    const { connectionString } = await client.issueDatabase.mutate();
+    let connectionString: string;
+    try {
+      const response = await client.issueDatabase.mutate();
+      connectionString = response.connectionString;
+    } catch (error: any) {
+      termWrapper.writeln(`ERROR: ${error.message}`);
+      console.log("Error:", error);
+      return;
+    }
     const pgPool = new Pool({
       connectionString,
     });

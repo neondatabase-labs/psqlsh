@@ -1,18 +1,20 @@
-import { EndpointType, createApiClient } from "@neondatabase/api-client";
+import { EndpointType } from "@neondatabase/api-client";
 
 import { router, publicProcedure } from "./trpc";
 import config from "./config";
 import { logger } from "./logger";
-
-const apiClient = createApiClient({
-  apiKey: config.neonApiKey,
-});
+import { apiClient } from "./apiClient";
 
 export const appRouter = router({
   issueDatabase: publicProcedure.mutation(async () => {
     const {
       data: { branches },
     } = await apiClient.listProjectBranches(config.neonProjectId);
+    if (branches.length >= config.branchesLimit) {
+      throw new Error(
+        "Sorry, we have reached our limit 😅. Please try again later.",
+      );
+    }
     const defaultBranch = branches.find((branch) => branch.default);
     if (!defaultBranch) {
       throw new Error("No default branch found");
