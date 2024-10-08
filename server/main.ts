@@ -5,7 +5,12 @@ import { appRouter } from "./router";
 
 const server = createHTTPServer({
   router: appRouter,
-  middleware: async (req, _res, next) => {
+  middleware: async (req, res, next) => {
+    if (req.url === "/health") {
+      res.writeHead(200);
+      res.end("OK");
+      return;
+    }
     logger.info({ url: req.url }, "incoming request");
     next();
   },
