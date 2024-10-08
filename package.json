@@ -6,6 +6,7 @@
   "scripts": {
     "dev:client": "vite ./client",
     "dev:server": "tsx watch ./server/main.ts",
+    "build": "vite build ./client",
     "start": "tsx ./server/main.ts",
     "tool:cleanup": "tsx ./server/scripts/cleanup.ts"
   },
