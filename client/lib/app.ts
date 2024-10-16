@@ -2,7 +2,7 @@ import { Pool } from "@neondatabase/serverless";
 
 import { TermWrapper } from "./termWrapper";
 import { client } from "./api";
-import { formatOutput } from "./psql";
+import { performDbQuery } from "./dbQuery";
 
 export class App {
   async start() {
@@ -29,32 +29,37 @@ export class App {
     const pgPool = new Pool({
       connectionString,
     });
-    termWrapper.writeln(`Connected to the database!`);
+    try {
+      const pgClient = await pgPool.connect();
+      const { rows } = await pgClient.query("show server_version");
+      if (rows.length === 0) {
+        termWrapper.writeln("Something went wrong. Please try again.");
+      }
+      termWrapper.writeln(
+        `psql (Neon flavor, server ${rows[0].server_version})`,
+      );
+    } catch (error: any) {
+      termWrapper.writeln(`ERROR: ${error.message}`);
+      console.log("Error:", error);
+      return;
+    }
+    termWrapper.writeln('Type "\\?" for help.');
     termWrapper.showCursor();
-    termWrapper.startPromptMode();
+    termWrapper.startPromptMode("neondb=> ");
     while (true) {
       const line = await termWrapper.waitLine();
       termWrapper.stopPromptMode();
       termWrapper.addLine();
       try {
-        const pgClient = await pgPool.connect();
-        const result = await pgClient.query({
-          rowMode: "array",
-          text: line,
-        });
-        if (result.fields.length === 0) {
-          termWrapper.writeln("Query returned no results");
-          continue;
+        for await (const output of performDbQuery(pgPool, line)) {
+          termWrapper.writeln(output);
         }
-        for (const row of formatOutput(result)) {
-          termWrapper.writeln(row);
-        }
-        pgClient.release();
       } catch (error: any) {
         termWrapper.writeln(`ERROR: ${error.message}`);
         console.log("Error:", error);
       } finally {
-        termWrapper.startPromptMode();
+        termWrapper.addLine();
+        termWrapper.startPromptMode("neondb=> ");
       }
     }
   }

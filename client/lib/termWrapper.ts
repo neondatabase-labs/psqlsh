@@ -3,6 +3,7 @@ export class TermWrapper {
   private currentLineBuffer = "";
   private cursorPosition = 0;
   private promptMode: boolean = false;
+  private promptText = "";
   private history: string[] = [];
   private historyIndex = 0;
   private undoHistoryLine = "";
@@ -28,17 +29,22 @@ export class TermWrapper {
       this.showCursor();
     }
     this.renderCurrentLine();
+    this.appNode.scrollTop = this.appNode.scrollHeight;
   }
 
   renderCurrentLine() {
     this.currentLine.textContent = "";
     if (this.promptMode) {
-      this.currentLine.textContent += "> ";
+      this.currentLine.textContent += this.promptText;
     }
     this.currentLine.textContent += this.currentLineBuffer;
     this.appNode.style.setProperty(
       "--cursor-position",
-      (this.cursorPosition - 1 + Number(this.promptMode)).toString(),
+      (
+        this.cursorPosition -
+        1 +
+        Number(this.promptMode) * (this.promptText.length - 1)
+      ).toString(),
     );
   }
 
@@ -132,7 +138,8 @@ export class TermWrapper {
     this.appNode.focus();
   }
 
-  startPromptMode() {
+  startPromptMode(promptText: string = "") {
+    this.promptText = promptText;
     this.promptMode = true;
     this.appNode.classList.add("prompt-mode");
     this.renderCurrentLine();

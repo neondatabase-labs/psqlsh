@@ -35,7 +35,7 @@ div:focus-visible {
 .terminal {
   width: 100%;
   padding: 16px 32px;
-  flex: 1 0 auto;
+  flex: 1;
   overflow: auto;
   box-sizing: border-box;
   background-color: var(--terminal-background-color);
