@@ -30,7 +30,7 @@ class Column {
   }
 
   constructor(readonly title: string) {
-    this.width = title.length;
+    this.width = title.length + 2;
   }
 }
 
@@ -51,7 +51,7 @@ class Cell {
         : value instanceof Date
           ? value.toISOString()
           : JSON.stringify(value);
-    this.width = this.strValue.length;
+    this.width = this.strValue.length + 2;
   }
 
   span() {

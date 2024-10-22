@@ -52,6 +52,7 @@ export class TermWrapper {
     this.addLine();
     this.appNode.classList.add("terminal");
     this.appNode.addEventListener("keydown", (event) => {
+      event.preventDefault();
       if (event.key === "Enter") {
         if (this.promptMode) {
           this.history.push(this.currentLineBuffer);
@@ -112,7 +113,9 @@ export class TermWrapper {
         event.key !== "Shift" &&
         event.key !== "Control" &&
         event.key !== "Alt" &&
+        event.key !== "Meta" &&
         event.ctrlKey === false &&
+        event.metaKey === false &&
         this.promptMode
       ) {
         this.currentLineBuffer =

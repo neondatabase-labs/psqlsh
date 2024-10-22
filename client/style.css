@@ -7,12 +7,7 @@ body {
   overflow: hidden;
 }
 
-body {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-
+:root {
   --terminal-background-color: #000;
   --terminal-text-color: #fff;
   --terminal-font-size: 16px;
@@ -21,6 +16,19 @@ body {
   --header-border-color: #2e2e2e;
 
   --button-border-color: #949494;
+
+  --banner-text-color: #dedede;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  font-family: sans-serif;
+
+  background-color: var(--terminal-background-color);
+  color: var(--terminal-text-color);
 }
 
 a {
@@ -38,8 +46,6 @@ div:focus-visible {
   flex: 1;
   overflow: auto;
   box-sizing: border-box;
-  background-color: var(--terminal-background-color);
-  color: var(--terminal-text-color);
   font-size: var(--terminal-font-size);
   font-family: monospace;
 
@@ -57,7 +63,7 @@ div:focus-visible {
     position: absolute;
     margin-left: 2ch;
     top: 0.2em;
-    left: calc(var(--cursor-position) * 1ch);
+    left: calc(var(--cursor-position) * 1ch + 1px);
     width: 0.5em;
     height: 1em;
     background-color: var(--terminal-text-color);
@@ -116,11 +122,67 @@ div:focus-visible {
     inset: 0;
     border: 1px solid transparent;
     border-radius: 6px;
-    background: linear-gradient(#6AFF5E, #0DFFF7);
-   -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    background: linear-gradient(#6aff5e, #0dfff7);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) padding-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) padding-box,
+      linear-gradient(#fff 0 0);
     -webkit-mask-composite: destination-out;
     mask-composite: exclude;
+  }
+}
+
+.banner-visible .banner {
+  display: flex;
+}
+
+.banner {
+  display: none;
+
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--terminal-background-color);
+
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.banner-content {
+  width: 500px;
+}
+
+.banner-logo {
+  width: 200px;
+}
+
+.banner-title {
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 36px;
+  letter-spacing: 0px;
+}
+
+.banner-description {
+  color: var(--banner-text-color);
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0px;
+}
+
+.banner-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
 }
 
 @keyframes blink {

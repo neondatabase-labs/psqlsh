@@ -3,6 +3,7 @@ import { Pool } from "@neondatabase/serverless";
 import { TermWrapper } from "./termWrapper";
 import { client } from "./api";
 import { performDbQuery } from "./dbQuery";
+import { showBanner } from "./promo";
 
 export class App {
   async start() {
@@ -51,8 +52,19 @@ export class App {
       termWrapper.stopPromptMode();
       termWrapper.addLine();
       try {
-        for await (const output of performDbQuery(pgPool, line)) {
-          termWrapper.writeln(output);
+        if (line === "\\q") {
+          showBanner();
+        } else {
+          let limit = 1000;
+          for await (const output of performDbQuery(pgPool, line)) {
+            termWrapper.writeln(output);
+            if (limit-- <= 0) {
+              termWrapper.writeln(
+                "The query returned more than 1000 rows. Showing only the first 1000 rows.",
+              );
+              break;
+            }
+          }
         }
       } catch (error: any) {
         termWrapper.writeln(`ERROR: ${error.message}`);
