@@ -51,7 +51,7 @@ class Cell {
         : value instanceof Date
           ? value.toISOString()
           : JSON.stringify(value);
-    this.width = this.strValue.length + 2;
+    this.width = this.strValue.length;
   }
 
   span() {

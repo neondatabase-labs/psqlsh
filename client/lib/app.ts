@@ -4,6 +4,7 @@ import { TermWrapper } from "./termWrapper";
 import { client } from "./api";
 import { performDbQuery } from "./dbQuery";
 import { showBanner } from "./promo";
+import { Color } from "./color";
 
 export class App {
   async start() {
@@ -36,9 +37,9 @@ export class App {
       if (rows.length === 0) {
         termWrapper.writeln("Something went wrong. Please try again.");
       }
-      termWrapper.writeln(
-        `psql (Neon flavor, server ${rows[0].server_version})`,
-      );
+      termWrapper.write(`psql (Neon flavor, server `);
+      termWrapper.write(rows[0].server_version, Color.Green);
+      termWrapper.writeln(`)`);
     } catch (error: any) {
       termWrapper.writeln(`ERROR: ${error.message}`);
       console.log("Error:", error);
@@ -55,6 +56,7 @@ export class App {
         if (line === "\\q") {
           showBanner();
         } else {
+          termWrapper.hideCursor();
           let limit = 1000;
           for await (const output of performDbQuery(pgPool, line)) {
             termWrapper.writeln(output);
@@ -67,11 +69,13 @@ export class App {
           }
         }
       } catch (error: any) {
-        termWrapper.writeln(`ERROR: ${error.message}`);
+        termWrapper.write("ERROR: ", Color.Red);
+        termWrapper.writeln(error.message);
         console.log("Error:", error);
       } finally {
         termWrapper.addLine();
         termWrapper.startPromptMode("neondb=> ");
+        termWrapper.showCursor();
       }
     }
   }
