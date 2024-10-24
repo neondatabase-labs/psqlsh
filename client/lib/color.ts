@@ -10,6 +10,6 @@ export class TextChunk {
   ) {}
 
   html() {
-    return `<span ${this.color && `style="color: ${this.color}"`}>${this.text}</span>`;
+    return `<span ${this.color ? `style="color: ${this.color}"` : ""}>${this.text}</span>`;
   }
 }

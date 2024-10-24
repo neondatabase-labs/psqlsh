@@ -61,7 +61,7 @@ export class TermWrapper {
   init() {
     this.addLine();
     this.appNode.classList.add("terminal");
-    this.appNode.addEventListener("keydown", (event) => {
+    this.appNode.addEventListener("keydown", async (event) => {
       event.preventDefault();
       if (event.key === "Enter") {
         if (this.promptMode) {
@@ -103,7 +103,7 @@ export class TermWrapper {
           }
           this.historyIndex--;
           this.currentLinePrompt = this.history[this.historyIndex];
-          this.cursorPosition = this.currentLineBuffer.length;
+          this.cursorPosition = this.currentLinePrompt.length;
           this.renderCurrentPrompt();
         }
       } else if (event.key === "ArrowDown") {
@@ -120,6 +120,17 @@ export class TermWrapper {
           }
         }
       } else if (
+        event.key === "v" &&
+        (event.ctrlKey || event.metaKey) &&
+        this.promptMode
+      ) {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          this.currentLinePrompt += text;
+          this.cursorPosition += text.length;
+          this.renderCurrentPrompt();
+        }
+      } else if (
         event.key.length === 1 &&
         event.ctrlKey === false &&
         event.metaKey === false &&
@@ -130,18 +141,6 @@ export class TermWrapper {
           event.key +
           this.currentLinePrompt.slice(this.cursorPosition);
         this.cursorPosition++;
-        this.renderCurrentPrompt();
-      }
-    });
-    this.appNode.addEventListener("paste", (event) => {
-      if (!this.promptMode) {
-        return;
-      }
-      event.preventDefault();
-      const text = event.clipboardData?.getData("text");
-      if (text) {
-        this.currentLinePrompt += text;
-        this.cursorPosition += text.length;
         this.renderCurrentPrompt();
       }
     });
