@@ -6,16 +6,24 @@ import { performDbQuery } from "./dbQuery";
 import { showBanner } from "./promo";
 import { Color } from "./color";
 
+function isConnectionError(err: unknown) {
+  if (err instanceof Error && "code" in err) {
+    return err.code === "XX000";
+  }
+
+  return false;
+}
+
 export class App {
-  async start() {
+  termWrapper: TermWrapper;
+
+  constructor() {
     const appNode = document.getElementById("app")!;
+    this.termWrapper = new TermWrapper(appNode);
+  }
 
-    const termWrapper = new TermWrapper(appNode);
-    termWrapper.init();
-    termWrapper.write("Welcome to Neon! To start, press Enter");
-    termWrapper.showCursor();
-
-    await termWrapper.waitLine();
+  async startConnection() {
+    const { termWrapper } = this;
     termWrapper.hideCursor();
     termWrapper.addLine();
     termWrapper.writeln(`Starting the database connection...`);
@@ -46,9 +54,9 @@ export class App {
       return;
     }
     termWrapper.writeln('Type "\\?" for help.');
-    termWrapper.showCursor();
-    termWrapper.startPromptMode("neondb=> ");
     while (true) {
+      termWrapper.startPromptMode("neondb=> ");
+      termWrapper.showCursor();
       const line = await termWrapper.waitLine();
       termWrapper.stopPromptMode();
       termWrapper.addLine();
@@ -72,11 +80,25 @@ export class App {
         termWrapper.write("ERROR: ", Color.Red);
         termWrapper.writeln(error.message);
         console.log("Error:", error);
+        if (isConnectionError(error)) {
+          termWrapper.writeln("To start a new connection, press Enter");
+          return;
+        }
       } finally {
         termWrapper.addLine();
-        termWrapper.startPromptMode("neondb=> ");
-        termWrapper.showCursor();
       }
+    }
+  }
+
+  async start() {
+    const { termWrapper } = this;
+    termWrapper.init();
+    termWrapper.write("Welcome to Neon! To start, press Enter");
+    termWrapper.showCursor();
+
+    while (true) {
+      await termWrapper.waitLine();
+      await this.startConnection();
     }
   }
 }
