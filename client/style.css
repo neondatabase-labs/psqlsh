@@ -20,6 +20,10 @@ body {
   --banner-text-color: #dedede;
 }
 
+.preloader {
+  display: none;
+}
+
 body {
   display: flex;
   flex-direction: column;
@@ -48,8 +52,15 @@ div:focus-visible {
   box-sizing: border-box;
   font-size: var(--terminal-font-size);
   font-family: monospace;
+  caret-color: transparent;
 
   --cursor-position: 0;
+}
+
+.terminal-input-hidden {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
 }
 
 .line {
@@ -185,6 +196,10 @@ div:focus-visible {
   gap: 12px;
 }
 
+.arrow-left {
+  vertical-align: -2px;
+}
+
 @keyframes blink {
   0% {
     opacity: 1;
@@ -194,5 +209,14 @@ div:focus-visible {
   }
   100% {
     opacity: 1;
+  }
+}
+
+@media (pointer: coarse) {
+  .line {
+    white-space: pre-wrap;
+    &.cursor::before {
+      display: none;
+    }
   }
 }

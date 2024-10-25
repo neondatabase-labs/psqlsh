@@ -3,7 +3,6 @@ import { Pool } from "@neondatabase/serverless";
 import { TermWrapper } from "./termWrapper";
 import { client } from "./api";
 import { performDbQuery } from "./dbQuery";
-import { showBanner } from "./promo";
 import { Color } from "./color";
 
 function isConnectionError(err: unknown) {
@@ -62,7 +61,7 @@ export class App {
       termWrapper.addLine();
       try {
         if (line === "\\q") {
-          showBanner();
+          this.showBanner();
         } else {
           termWrapper.hideCursor();
           let limit = 1000;
@@ -96,9 +95,26 @@ export class App {
     termWrapper.write("Welcome to Neon! To start, press Enter");
     termWrapper.showCursor();
 
+    document.getElementById("info")!.addEventListener("click", this.showBanner);
+    document.getElementById("back")!.addEventListener("click", this.hideBanner);
+    document.addEventListener("keydown", (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        this.hideBanner();
+      }
+    });
+
     while (true) {
       await termWrapper.waitLine();
       await this.startConnection();
     }
+  }
+
+  showBanner() {
+    document.body.classList.add("banner-visible");
+  }
+
+  hideBanner() {
+    document.body.classList.remove("banner-visible");
+    this.termWrapper.focus();
   }
 }

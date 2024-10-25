@@ -10,8 +10,8 @@ export class TermWrapper {
   private history: string[] = [];
   private historyIndex = 0;
   private undoHistoryLine = "";
-
   private newLineListeners: ((line: string) => void)[] = [];
+  private inputNode: HTMLTextAreaElement | undefined;
 
   constructor(private appNode: HTMLElement) {}
 
@@ -58,45 +58,50 @@ export class TermWrapper {
     );
   }
 
+  focus() {
+    this.inputNode?.focus();
+  }
+
   init() {
-    this.addLine();
     this.appNode.classList.add("terminal");
-    this.appNode.addEventListener("keydown", async (event) => {
-      event.preventDefault();
-      if (event.key === "Enter") {
-        if (this.promptMode) {
-          this.history.push(this.currentLinePrompt);
-          this.historyIndex = this.history.length;
-          this.undoHistoryLine = "";
-        }
-        this.newLineListeners.forEach((listener) =>
-          listener(this.currentLinePrompt),
-        );
-        this.currentLineBuffer = [];
-        this.currentLinePrompt = "";
-      } else if (event.key === "Backspace" && this.promptMode) {
-        if (this.currentLinePrompt.length === 0) {
-          return;
-        }
-        this.currentLinePrompt =
-          this.currentLinePrompt.slice(0, this.cursorPosition - 1) +
-          this.currentLinePrompt.slice(this.cursorPosition);
-        this.cursorPosition--;
-        this.renderCurrentPrompt();
-      } else if (event.key === "ArrowLeft") {
+    this.addLine();
+
+    const inputNode = document.createElement("textarea");
+    this.inputNode = inputNode;
+    inputNode.classList.add("terminal-input-hidden");
+    inputNode.setAttribute("tabindex", "-1");
+    inputNode.addEventListener("focusout", () => {
+      setTimeout(() => {
+        inputNode.focus();
+      }, 1);
+    });
+    document.body.addEventListener("click", () => {
+      setTimeout(() => {
+        inputNode.focus();
+      }, 1);
+    });
+    this.appNode.appendChild(inputNode);
+
+    inputNode.addEventListener("keydown", async (event) => {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
         if (this.promptMode) {
           this.cursorPosition = Math.max(0, this.cursorPosition - 1);
+          inputNode.setSelectionRange(this.cursorPosition, this.cursorPosition);
           this.renderCurrentLine();
         }
       } else if (event.key === "ArrowRight") {
+        event.preventDefault();
         if (this.promptMode) {
           this.cursorPosition = Math.min(
             this.currentLinePrompt.length,
             this.cursorPosition + 1,
           );
+          inputNode.setSelectionRange(this.cursorPosition, this.cursorPosition);
           this.renderCurrentLine();
         }
       } else if (event.key === "ArrowUp") {
+        event.preventDefault();
         if (this.promptMode && this.historyIndex > 0) {
           if (this.historyIndex === this.history.length) {
             this.undoHistoryLine = this.currentLinePrompt;
@@ -107,6 +112,7 @@ export class TermWrapper {
           this.renderCurrentPrompt();
         }
       } else if (event.key === "ArrowDown") {
+        event.preventDefault();
         if (this.promptMode && this.historyIndex < this.history.length) {
           this.historyIndex++;
           this.currentLinePrompt =
@@ -124,27 +130,53 @@ export class TermWrapper {
         (event.ctrlKey || event.metaKey) &&
         this.promptMode
       ) {
+        event.preventDefault();
         const text = await navigator.clipboard.readText();
         if (text) {
           this.currentLinePrompt += text;
           this.cursorPosition += text.length;
           this.renderCurrentPrompt();
         }
+      }
+    });
+    // @ts-expect-error
+    inputNode.addEventListener("input", async (event: InputEvent) => {
+      event.preventDefault();
+      if (event.inputType === "insertLineBreak") {
+        if (this.promptMode) {
+          this.history.push(this.currentLinePrompt);
+          this.historyIndex = this.history.length;
+          this.undoHistoryLine = "";
+        }
+        this.newLineListeners.forEach((listener) =>
+          listener(this.currentLinePrompt),
+        );
+        this.currentLineBuffer = [];
+        this.currentLinePrompt = "";
+        inputNode.value = "";
       } else if (
-        event.key.length === 1 &&
-        event.ctrlKey === false &&
-        event.metaKey === false &&
+        event.inputType === "deleteContentBackward" &&
         this.promptMode
       ) {
+        if (this.currentLinePrompt.length === 0) {
+          return;
+        }
         this.currentLinePrompt =
-          this.currentLinePrompt.slice(0, this.cursorPosition) +
-          event.key +
+          this.currentLinePrompt.slice(0, this.cursorPosition - 1) +
           this.currentLinePrompt.slice(this.cursorPosition);
+        this.cursorPosition--;
+        this.renderCurrentPrompt();
+      } else if (
+        (event.inputType === "insertText" ||
+          event.inputType === "insertCompositionText") &&
+        this.promptMode
+      ) {
+        this.currentLinePrompt = inputNode.value;
         this.cursorPosition++;
         this.renderCurrentPrompt();
       }
     });
-    this.appNode.focus();
+    inputNode.focus();
   }
 
   startPromptMode(promptText: string = "") {
