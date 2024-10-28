@@ -42,13 +42,21 @@ export async function* performDbQuery(pool: Pool, query: string) {
     text: query,
   });
 
-  if (result.fields.length === 0) {
-    yield result.command || "Query returned no results";
-    return;
-  }
+  const resultAsArray = Array.isArray(result) ? result : [result];
 
-  for (const row of formatOutput(result)) {
-    yield row;
+  for (let i = 0; i < resultAsArray.length; i++) {
+    const resultBlock = resultAsArray[i];
+    if (resultBlock.fields.length === 0) {
+      yield resultBlock.command || "Query returned no results";
+      continue;
+    }
+
+    for (const row of formatOutput(resultBlock)) {
+      yield row;
+    }
+    if (i < resultAsArray.length - 1) {
+      yield "";
+    }
   }
 
   pgClient.release();
