@@ -53,8 +53,9 @@ export class App {
       return;
     }
     termWrapper.writeln('Type "\\?" for help.');
+    let isTransaction = false;
     while (true) {
-      termWrapper.startPromptMode("neondb=> ");
+      termWrapper.startPromptMode(`neondb=${isTransaction ? "*" : ""}> `);
       termWrapper.showCursor();
       const line = await termWrapper.waitLine();
       termWrapper.stopPromptMode();
@@ -65,7 +66,13 @@ export class App {
         } else {
           termWrapper.hideCursor();
           let limit = 1000;
-          for await (const output of performDbQuery(pgPool, line)) {
+          for await (const output of performDbQuery(
+            pgPool,
+            line,
+            (isTransactionIn) => {
+              isTransaction = isTransactionIn;
+            },
+          )) {
             termWrapper.writeln(output);
             if (limit-- <= 0) {
               termWrapper.writeln(

@@ -2,7 +2,11 @@ import { Pool } from "@neondatabase/serverless";
 import * as psql from "psql-describe";
 import { formatOutput } from "./psql";
 
-export async function* performDbQuery(pool: Pool, query: string) {
+export async function* performDbQuery(
+  pool: Pool,
+  query: string,
+  onIsTransaction: (isTransaction: boolean) => void,
+) {
   const pgClient = await pool.connect();
   if (query.startsWith("\\")) {
     let descriptiveText = "";
@@ -41,6 +45,13 @@ export async function* performDbQuery(pool: Pool, query: string) {
     rowMode: "array",
     text: query,
   });
+
+  const {
+    rows: [isTx],
+  } = await pgClient.query(
+    "select now() = statement_timestamp() as is_not_transaction",
+  );
+  onIsTransaction(!isTx.is_not_transaction);
 
   const resultAsArray = Array.isArray(result) ? result : [result];
 
