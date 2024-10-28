@@ -25,8 +25,8 @@ export async function* performDbQuery(pool: Pool, query: string) {
         descriptiveText += psql.describeDataToString(item);
       },
       false,
-      serverVersionNum,
-      standardConformingStrings,
+      serverVersionNum.server_version_num,
+      standardConformingStrings.standard_conforming_strings === "on",
       (id) => `https://neon.tech/docs/postgres/${id}`,
     );
 
