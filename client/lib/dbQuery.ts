@@ -1,6 +1,7 @@
 import { Pool } from "@neondatabase/serverless";
 import * as psql from "psql-describe";
 import { formatOutput } from "./psql";
+import { analytics } from "./analytics";
 
 export async function* performDbQuery(
   pool: Pool,
@@ -26,6 +27,7 @@ export async function* performDbQuery(
       database,
       (sqlText) => pgClient.query({ text: sqlText, rowMode: "array" }),
       (item) => {
+        analytics.track("bslash_command", { command: query });
         descriptiveText += psql.describeDataToString(item);
       },
       false,

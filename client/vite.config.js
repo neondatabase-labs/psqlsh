@@ -1,5 +1,6 @@
 /** @type {import('vite').UserConfig */
 export default {
+  envDir: process.cwd(),
   server: {
     host: "0.0.0.0",
     proxy: {

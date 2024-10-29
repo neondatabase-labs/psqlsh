@@ -4,6 +4,7 @@ import { TermWrapper } from "./termWrapper";
 import { client } from "./api";
 import { performDbQuery } from "./dbQuery";
 import { Color } from "./color";
+import { analytics } from "./analytics";
 
 function isConnectionError(err: unknown) {
   if (err instanceof Error && "code" in err) {
@@ -32,12 +33,14 @@ export class App {
       connectionString = response.connectionString;
     } catch (error: any) {
       termWrapper.writeln(`ERROR: ${error.message}`);
+      analytics.track("database_issue_error", { message: error.message });
       console.log("Error:", error);
       return;
     }
     const pgPool = new Pool({
       connectionString,
     });
+    analytics.track("database_issued");
     try {
       const pgClient = await pgPool.connect();
       const { rows } = await pgClient.query("show server_version");
@@ -49,15 +52,18 @@ export class App {
       termWrapper.writeln(`)`);
     } catch (error: any) {
       termWrapper.writeln(`ERROR: ${error.message}`);
+      analytics.track("database_connection_error", { message: error.message });
       console.log("Error:", error);
       return;
     }
+    analytics.track("database_connected");
     termWrapper.writeln('Type "\\?" for help.');
     let isTransaction = false;
     while (true) {
       termWrapper.startPromptMode(`neondb=${isTransaction ? "*" : ""}> `);
       termWrapper.showCursor();
       const line = await termWrapper.waitLine();
+      analytics.track("query_started");
       termWrapper.stopPromptMode();
       termWrapper.addLine();
       try {
@@ -81,11 +87,13 @@ export class App {
               break;
             }
           }
+          analytics.track("query_finished");
         }
       } catch (error: any) {
         termWrapper.write("ERROR: ", Color.Red);
         termWrapper.writeln(error.message);
         console.log("Error:", error);
+        analytics.track("query_error", { message: error.message });
         if (isConnectionError(error)) {
           termWrapper.writeln("To start a new connection, press Enter");
           return;
@@ -112,15 +120,18 @@ export class App {
 
     while (true) {
       await termWrapper.waitLine();
+      analytics.track("new_connection");
       await this.startConnection();
     }
   }
 
   showBanner() {
+    analytics.track("info_banner_shown");
     document.body.classList.add("banner-visible");
   }
 
   hideBanner() {
+    analytics.track("info_banner_hidden");
     document.body.classList.remove("banner-visible");
     this.termWrapper.focus();
   }

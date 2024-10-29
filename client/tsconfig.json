@@ -4,6 +4,7 @@
     "isolatedModules": true,
     "lib": ["esnext", "dom"],
     "target": "esnext",
+    "module": "esnext",
     "moduleResolution": "nodenext",
   }
 }
