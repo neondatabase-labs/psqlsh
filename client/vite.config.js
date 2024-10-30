@@ -1,6 +1,8 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 /** @type {import('vite').UserConfig */
 export default {
   envDir: process.cwd(),
+
   server: {
     host: "0.0.0.0",
     proxy: {
@@ -11,4 +13,13 @@ export default {
       },
     },
   },
+
+  build: {
+    sourcemap: true
+  },
+
+  plugins: [sentryVitePlugin({
+    org: "neondatabase",
+    project: "psqlsh-web"
+  })]
 };
