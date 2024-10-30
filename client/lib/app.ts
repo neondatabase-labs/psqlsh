@@ -1,4 +1,5 @@
 import { Pool } from "@neondatabase/serverless";
+import * as Sentry from "@sentry/browser";
 
 import { TermWrapper } from "./termWrapper";
 import { client } from "./api";
@@ -92,11 +93,13 @@ export class App {
       } catch (error: any) {
         termWrapper.write("ERROR: ", Color.Red);
         termWrapper.writeln(error.message);
-        console.log("Error:", error);
         analytics.track("query_error", { message: error.message });
         if (isConnectionError(error)) {
           termWrapper.writeln("To start a new connection, press Enter");
           return;
+        }
+        if (!("code" in error)) {
+          Sentry.captureException(error);
         }
       } finally {
         termWrapper.addLine();

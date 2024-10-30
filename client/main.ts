@@ -1,5 +1,6 @@
 import "./style.css";
 import { analytics } from "./lib/analytics";
+import "./lib/sentry";
 import { App } from "./lib/app";
 
 const app = new App();

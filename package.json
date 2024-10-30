@@ -33,6 +33,7 @@
     "@neondatabase/api-client": "^1.10.3",
     "@neondatabase/serverless": "^0.9.5",
     "@segment/analytics-next": "^1.75.0",
+    "@sentry/browser": "^8.35.0",
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
     "dotenv": "^16.4.5",
