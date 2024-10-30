@@ -41,9 +41,15 @@ export class App {
     const pgPool = new Pool({
       connectionString,
     });
+    pgPool.on("error", (err) => {
+      console.log("Unexpected error on idle client", err);
+    });
     analytics.track("database_issued");
     try {
       const pgClient = await pgPool.connect();
+      pgClient.on("error", (err) => {
+        console.log("Unexpected error on client", err);
+      });
       const { rows } = await pgClient.query("show server_version");
       if (rows.length === 0) {
         termWrapper.writeln("Something went wrong. Please try again.");
@@ -113,8 +119,12 @@ export class App {
     termWrapper.write("Welcome to Neon! To start, press Enter");
     termWrapper.showCursor();
 
-    document.getElementById("info")!.addEventListener("click", this.showBanner);
-    document.getElementById("back")!.addEventListener("click", this.hideBanner);
+    document
+      .getElementById("info")!
+      .addEventListener("click", () => this.showBanner());
+    document
+      .getElementById("back")!
+      .addEventListener("click", () => this.hideBanner());
     document.addEventListener("keydown", (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         this.hideBanner();
@@ -124,7 +134,11 @@ export class App {
     while (true) {
       await termWrapper.waitLine();
       analytics.track("new_connection");
-      await this.startConnection();
+      try {
+        await this.startConnection();
+      } catch (error: any) {
+        Sentry.captureException(error);
+      }
     }
   }
 

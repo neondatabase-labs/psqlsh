@@ -70,11 +70,6 @@ export class TermWrapper {
     this.inputNode = inputNode;
     inputNode.classList.add("terminal-input-hidden");
     inputNode.setAttribute("tabindex", "-1");
-    inputNode.addEventListener("focusout", () => {
-      setTimeout(() => {
-        inputNode.focus();
-      }, 1);
-    });
     document.body.addEventListener("click", () => {
       setTimeout(() => {
         inputNode.focus();
