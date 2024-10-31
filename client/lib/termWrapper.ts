@@ -71,6 +71,9 @@ export class TermWrapper {
     inputNode.classList.add("terminal-input-hidden");
     inputNode.setAttribute("tabindex", "-1");
     document.body.addEventListener("click", () => {
+      if (!document.getSelection()?.getRangeAt(0)?.collapsed) {
+        return;
+      }
       setTimeout(() => {
         inputNode.focus();
       }, 1);
