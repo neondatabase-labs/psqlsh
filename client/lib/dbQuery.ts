@@ -9,6 +9,7 @@ export async function* performDbQuery(
   onIsTransaction: (isTransaction: boolean) => void,
 ) {
   const pgClient = await pool.connect();
+  // deal with backslash describe commands
   if (query.startsWith("\\")) {
     let descriptiveText = "";
     const {
@@ -20,11 +21,10 @@ export async function* performDbQuery(
     const {
       rows: [standardConformingStrings],
     } = await pgClient.query(`show standard_conforming_strings`);
-    // deal with backslash describe commands
 
     const { promise: describePromise } = psql.describe(
-      query,
-      database,
+      query.replace(/;$/, ""),
+      database.current_database,
       (sqlText) => pgClient.query({ text: sqlText, rowMode: "array" }),
       (item) => {
         analytics.track("bslash_command", { command: query });

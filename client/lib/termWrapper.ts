@@ -107,6 +107,7 @@ export class TermWrapper {
           this.historyIndex--;
           this.currentLinePrompt = this.history[this.historyIndex];
           this.cursorPosition = this.currentLinePrompt.length;
+          this.inputNode!.value = this.currentLinePrompt;
           this.renderCurrentPrompt();
         }
       } else if (event.key === "ArrowDown") {
@@ -118,22 +119,11 @@ export class TermWrapper {
               ? this.undoHistoryLine
               : this.history[this.historyIndex];
           this.cursorPosition = this.currentLinePrompt.length;
+          this.inputNode!.value = this.currentLinePrompt;
           this.renderCurrentPrompt();
           if (this.historyIndex === this.history.length) {
             this.undoHistoryLine = "";
           }
-        }
-      } else if (
-        event.key === "v" &&
-        (event.ctrlKey || event.metaKey) &&
-        this.promptMode
-      ) {
-        event.preventDefault();
-        const text = await navigator.clipboard.readText();
-        if (text) {
-          this.currentLinePrompt += text;
-          this.cursorPosition += text.length;
-          this.renderCurrentPrompt();
         }
       }
     });
@@ -171,6 +161,20 @@ export class TermWrapper {
       ) {
         this.currentLinePrompt = inputNode.value;
         this.cursorPosition++;
+        this.renderCurrentPrompt();
+      }
+    });
+    inputNode.addEventListener("paste", async (event) => {
+      event.preventDefault();
+      const text = event.clipboardData?.getData("text");
+      if (text) {
+        this.currentLinePrompt =
+          this.currentLinePrompt.slice(0, this.cursorPosition) +
+          text +
+          this.currentLinePrompt.slice(this.cursorPosition);
+
+        this.cursorPosition += text.length;
+        this.inputNode!.value = this.currentLinePrompt;
         this.renderCurrentPrompt();
       }
     });
