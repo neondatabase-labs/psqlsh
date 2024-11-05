@@ -5,6 +5,8 @@ import { App } from "./lib/app";
 
 const app = new App();
 app.start();
+// @ts-ignore
+window.app = app;
 document.querySelectorAll(".signup").forEach((el) => {
   el.addEventListener("click", () => {
     analytics.track("signup_clicked");

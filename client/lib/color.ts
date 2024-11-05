@@ -1,6 +1,7 @@
 export enum Color {
   Red = "#FF2B6A",
   Green = "#2BE5AD",
+  Yellow = "#FFD73A",
 }
 
 export class TextChunk {

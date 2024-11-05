@@ -6,6 +6,7 @@ import { client } from "./api";
 import { performDbQuery } from "./dbQuery";
 import { Color } from "./color";
 import { analytics } from "./analytics";
+import { InputManager } from "./inputManager";
 
 function isConnectionError(err: unknown) {
   if (err instanceof Error && "code" in err) {
@@ -17,10 +18,24 @@ function isConnectionError(err: unknown) {
 
 export class App {
   termWrapper: TermWrapper;
+  inputManager: InputManager;
 
   constructor() {
     const appNode = document.getElementById("app")!;
-    this.termWrapper = new TermWrapper(appNode);
+    const inputNode = document.createElement("textarea");
+    inputNode.classList.add("terminal-input-hidden");
+    inputNode.setAttribute("tabindex", "-1");
+    document.body.addEventListener("click", () => {
+      if (!document.getSelection()?.getRangeAt(0)?.collapsed) {
+        return;
+      }
+      setTimeout(() => {
+        inputNode.focus();
+      }, 1);
+    });
+    appNode.appendChild(inputNode);
+    this.inputManager = new InputManager(inputNode);
+    this.termWrapper = new TermWrapper(appNode, this.inputManager);
   }
 
   async startConnection() {
@@ -99,6 +114,10 @@ export class App {
       } catch (error: any) {
         termWrapper.write("ERROR: ", Color.Red);
         termWrapper.writeln(error.message);
+        if ("hint" in error) {
+          termWrapper.write("HINT: ", Color.Yellow);
+          termWrapper.writeln(error.hint);
+        }
         analytics.track("query_error", { message: error.message });
         if (isConnectionError(error)) {
           termWrapper.writeln("To start a new connection, press Enter");
@@ -114,7 +133,8 @@ export class App {
   }
 
   async start() {
-    const { termWrapper } = this;
+    const { termWrapper, inputManager } = this;
+    inputManager.init();
     termWrapper.init();
     termWrapper.write("Welcome to Neon! To start, press Enter");
     termWrapper.showCursor();
@@ -150,6 +170,6 @@ export class App {
   hideBanner() {
     analytics.track("info_banner_hidden");
     document.body.classList.remove("banner-visible");
-    this.termWrapper.focus();
+    this.inputManager.focus();
   }
 }
