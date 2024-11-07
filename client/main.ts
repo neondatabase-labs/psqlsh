@@ -1,9 +1,10 @@
 import "./style.css";
 import { analytics } from "./lib/analytics";
 import "./lib/sentry";
-import { App } from "./lib/app";
+import { App, AppMode } from "./lib/app";
 
-const app = new App();
+const app = new App(AppMode.Normal, document.getElementById("app")!);
+
 app.start();
 // @ts-ignore
 window.app = app;

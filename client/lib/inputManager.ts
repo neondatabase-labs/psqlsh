@@ -32,6 +32,15 @@ export class InputManager {
     this.callbacks[event]!.push(cb as any);
   }
 
+  off<E extends keyof InputEventCb>(
+    event: E,
+    cb: (...args: Parameters<InputEventCb[E]>) => void,
+  ) {
+    this.callbacks[event] = this.callbacks[event]?.filter(
+      (callback) => callback !== cb,
+    ) as any;
+  }
+
   resetText(text: string) {
     this.inputNode.value = text;
     this.cursorPosition = text.length;
