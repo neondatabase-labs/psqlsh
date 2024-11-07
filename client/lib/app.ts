@@ -7,6 +7,7 @@ import { performDbQuery } from "./dbQuery";
 import { Color } from "./color";
 import { analytics } from "./analytics";
 import { InputManager } from "./inputManager";
+import { Select } from "./select";
 
 function isConnectionError(err: unknown) {
   if (err instanceof Error && "code" in err) {
@@ -16,12 +17,20 @@ function isConnectionError(err: unknown) {
   return false;
 }
 
+export enum AppMode {
+  Normal,
+  Templates,
+  Embed,
+}
+
 export class App {
   termWrapper: TermWrapper;
   inputManager: InputManager;
 
-  constructor() {
-    const appNode = document.getElementById("app")!;
+  constructor(
+    private appMode: AppMode,
+    private appNode: HTMLElement,
+  ) {
     const inputNode = document.createElement("textarea");
     inputNode.classList.add("terminal-input-hidden");
     inputNode.setAttribute("tabindex", "-1");
