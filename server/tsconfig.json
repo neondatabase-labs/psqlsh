@@ -2,4 +2,5 @@
   "compilerOptions": {
     "strict": true,
     "lib": ["esnext"],
+    "allowSyntheticDefaultImports": true,
   }

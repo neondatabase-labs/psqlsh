@@ -17,6 +17,14 @@ export async function cleanup() {
   } = await apiClient.listProjectEndpoints(config.neonProjectId);
   let count = 0;
   for (const endpoint of endpoints) {
+    const branch = branches.find((b) => b.id === endpoint.branch_id);
+    if (!branch) {
+      throw new Error("Branch not found");
+    }
+    if (branch.name.startsWith("template/")) {
+      logger.info({ branchName: branch.name }, "Skipping template branch");
+      continue;
+    }
     if (
       endpoint.current_state === EndpointState.Idle &&
       endpoint.branch_id !== defaultBranch.id

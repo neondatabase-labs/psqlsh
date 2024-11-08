@@ -35,7 +35,12 @@ export class App {
     inputNode.classList.add("terminal-input-hidden");
     inputNode.setAttribute("tabindex", "-1");
     document.body.addEventListener("click", () => {
-      if (!document.getSelection()?.getRangeAt(0)?.collapsed) {
+      const selection = document.getSelection();
+      if (
+        selection &&
+        selection.rangeCount > 0 &&
+        !selection?.getRangeAt(0)?.collapsed
+      ) {
         return;
       }
       setTimeout(() => {
