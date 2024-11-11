@@ -154,9 +154,10 @@ div:focus-visible {
 .info-icon {
   display: inline-block;
   mask: url("./images/question.svg") center no-repeat;
+  mask-size: contain;
   background-color: var(--terminal-text-color);
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   vertical-align: bottom;
 }
 
