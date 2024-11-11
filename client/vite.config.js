@@ -1,4 +1,6 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
+import favicons from "@peterek/vite-plugin-favicons";
+
 /** @type {import('vite').UserConfig */
 export default {
   envDir: process.cwd(),
@@ -15,11 +17,14 @@ export default {
   },
 
   build: {
-    sourcemap: true
+    sourcemap: true,
   },
 
-  plugins: [sentryVitePlugin({
-    org: "neondatabase",
-    project: "psqlsh-web"
-  })]
+  plugins: [
+    sentryVitePlugin({
+      org: "neondatabase",
+      project: "psqlsh-web",
+    }),
+    favicons("./client/images/favicon.png"),
+  ],
 };

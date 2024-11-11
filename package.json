@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/neondatabase/psqlsh#readme",
   "devDependencies": {
+    "@peterek/vite-plugin-favicons": "^2.0.0",
     "@types/node": "^22.7.3",
     "vite": "^5.4.7"
   },
@@ -40,8 +41,8 @@
     "@trpc/server": "^10.45.2",
     "dotenv": "^16.4.5",
     "pino": "^9.4.0",
-    "psql-describe": "^0.1.6",
     "postgres": "^3.4.5",
+    "psql-describe": "^0.1.6",
     "tsx": "^4.19.1",
     "zod": "^3.23.8"
   }
