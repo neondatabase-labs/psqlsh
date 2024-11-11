@@ -136,7 +136,10 @@ div:focus-visible {
     inset: 0;
     border: 1px solid transparent;
     border-radius: 6px;
-    background: linear-gradient(#6aff5e, #0dfff7);
+    background: linear-gradient(to right, #6aff5e, #0dfff7);
+    background-repeat: no-repeat;
+    background-size: calc(100% + 4px) calc(100% + 4px);
+    background-position: center;
     -webkit-mask:
       linear-gradient(#fff 0 0) padding-box,
       linear-gradient(#fff 0 0);
