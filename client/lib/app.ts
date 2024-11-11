@@ -57,6 +57,7 @@ export class App {
     termWrapper.hideCursor();
     termWrapper.addLine();
     termWrapper.writeln(`Starting the database connection...`);
+    termWrapper.addLine();
     let connectionString: string;
     try {
       const response = await client.issueDatabase.mutate();
@@ -83,7 +84,7 @@ export class App {
       if (rows.length === 0) {
         termWrapper.writeln("Something went wrong. Please try again.");
       }
-      termWrapper.write(`psql (Neon flavor, server `);
+      termWrapper.write(`psql (Neon, server `);
       termWrapper.write(rows[0].server_version, Color.Green);
       termWrapper.writeln(`)`);
     } catch (error: any) {
@@ -94,6 +95,7 @@ export class App {
     }
     analytics.track("database_connected");
     termWrapper.writeln('Type "\\?" for help.');
+    termWrapper.addLine();
     let isTransaction = false;
     while (true) {
       termWrapper.startPromptMode(`neondb=${isTransaction ? "*" : ""}> `);
