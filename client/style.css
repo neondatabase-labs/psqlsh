@@ -238,6 +238,14 @@ div:focus-visible {
 }
 
 /* Select */
+.option-value {
+  display: inline-block;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .option-selected .option-value {
   color: var(--select-option-selected-color);
 }

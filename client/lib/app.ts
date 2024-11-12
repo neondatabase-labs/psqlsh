@@ -18,14 +18,15 @@ function isConnectionError(err: unknown) {
 }
 
 export enum AppMode {
-  Normal,
-  Templates,
-  Embed,
+  Normal = "normal",
+  Templates = "templates",
+  Embed = "embed",
 }
 
 export class App {
   termWrapper: TermWrapper;
   inputManager: InputManager;
+  sourceBranch?: string;
 
   constructor(
     private appMode: AppMode,
@@ -60,7 +61,9 @@ export class App {
     termWrapper.addLine();
     let connectionString: string;
     try {
-      const response = await client.issueDatabase.mutate();
+      const response = await client.issueDatabase.mutate({
+        sourceBranch: this.sourceBranch,
+      });
       connectionString = response.connectionString;
     } catch (error: any) {
       termWrapper.writeln(`ERROR: ${error.message}`);
@@ -148,12 +151,35 @@ export class App {
     }
   }
 
+  async pickTemplate() {
+    const templates = await client.listTemplates.query();
+    const select = new Select(
+      this.appNode,
+      this.inputManager,
+      templates.map(({ name, description }) => ({
+        value: name,
+        label: description,
+      })),
+    );
+    const selectedTemplate = await select.pickOption();
+    this.sourceBranch = templates.find(
+      (template) => template.name === selectedTemplate.value,
+    )?.branch;
+    analytics.track("template_selected", { template: selectedTemplate.value });
+  }
+
   async start() {
     const { termWrapper, inputManager } = this;
     inputManager.init();
     termWrapper.init();
-    termWrapper.write("Welcome to Neon! To start, press Enter");
-    termWrapper.showCursor();
+    if (this.appMode === AppMode.Templates) {
+      termWrapper.writeln("Welcome to Neon! To start, select a template");
+      await this.pickTemplate();
+    } else {
+      termWrapper.write("Welcome to Neon! To start, press Enter");
+      termWrapper.showCursor();
+      await termWrapper.waitLine();
+    }
 
     document
       .getElementById("info")!
@@ -168,13 +194,13 @@ export class App {
     });
 
     while (true) {
-      await termWrapper.waitLine();
       analytics.track("new_connection");
       try {
         await this.startConnection();
       } catch (error: any) {
         Sentry.captureException(error);
       }
+      await termWrapper.waitLine();
     }
   }
 

@@ -1,18 +1,14 @@
 import { EndpointType } from "@neondatabase/api-client";
 import postgres from "postgres";
 import { resolve } from "node:path";
-import { pipeline } from "node:stream/promises";
-import { createReadStream } from "node:fs";
 
 import { apiClient } from "../apiClient";
 import { logger } from "../logger";
 import config from "../config";
 import db from "../../templates/db";
+import { generateBranchName } from "../templates";
 
 const templateDir = resolve(process.cwd(), "templates");
-
-const prepareNameForTemplate = (name: string) =>
-  name.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
 
 async function uploadTemplates() {
   const {
@@ -24,7 +20,7 @@ async function uploadTemplates() {
   }
 
   for (const { file, name } of db) {
-    const branchName = `template/${prepareNameForTemplate(name)}`;
+    const branchName = generateBranchName(name);
     const loggerC = logger.child({ branchName, file, name });
     const existingBranch = branches.find(
       (branch) => branch.name === branchName,

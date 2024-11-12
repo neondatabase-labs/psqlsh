@@ -3,7 +3,9 @@ import { analytics } from "./lib/analytics";
 import "./lib/sentry";
 import { App, AppMode } from "./lib/app";
 
-const app = new App(AppMode.Normal, document.getElementById("app")!);
+const mode: AppMode = import.meta.env.VITE_APP_MODE ?? AppMode.Normal;
+
+const app = new App(mode, document.getElementById("app")!);
 
 app.start();
 // @ts-ignore

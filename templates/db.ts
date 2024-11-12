@@ -1,5 +1,10 @@
 const db = [
   {
+    name: "Empty",
+    description: "An empty database.",
+    file: "empty.sql",
+  },
+  {
     file: "chinook.sql",
     name: "Chinook",
     description:
