@@ -10,6 +10,11 @@ const db = [
     name: "Pokemon",
     description: "A dataset of Pokemon species, types, and stats.",
   },
+  {
+    file: "netflix.sql",
+    name: "Netflix",
+    description: "A dataset of Netflix movies and TV shows.",
+  },
 ];
 
 export default db;
