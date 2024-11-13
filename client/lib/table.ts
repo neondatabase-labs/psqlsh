@@ -43,6 +43,8 @@ class Cell {
         : value instanceof Date
           ? value.toISOString()
           : JSON.stringify(value);
+
+    this.strValue = this.strValue.replace(/\n/g, " ");
   }
 
   width() {
