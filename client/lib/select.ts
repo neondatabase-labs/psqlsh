@@ -37,10 +37,10 @@ export class Select {
       if (option.description) {
         const optionDescriptionNode = document.createElement("div");
         optionDescriptionNode.classList.add("option-description");
-        optionDescriptionNode.textContent = option.description;
+        optionDescriptionNode.innerHTML = option.description;
         optionNode.appendChild(optionDescriptionNode);
       }
-      optionNode.addEventListener("click", () => {
+      optionValueNode.addEventListener("click", () => {
         if (this.onChoice) {
           this.onChoice(option);
         }

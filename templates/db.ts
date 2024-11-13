@@ -23,7 +23,8 @@ const db = [
   {
     file: "pgrag.sql",
     name: "pg_rag demo",
-    description: "A demo database for the pg_rag extension.",
+    description:
+      'A demo database for the <a href="https://neon.tech/docs/extensions/pgrag" target="_blank">pg_rag</a> extension.',
   },
 ];
 

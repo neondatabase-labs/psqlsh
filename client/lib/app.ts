@@ -158,7 +158,7 @@ export class App {
       this.inputManager,
       templates.map(({ name, description }) => ({
         value: name,
-        label: description,
+        description,
       })),
     );
     const selectedTemplate = await select.pickOption();

@@ -21,6 +21,7 @@ body {
 
   --select-option-selected-color: #63f655;
   --select-option-description-color: #808080;
+  --select-option-description-link-color: #7a8bff;
 }
 
 .preloader {
@@ -253,6 +254,11 @@ div:focus-visible {
 .option-description {
   color: var(--select-option-description-color);
   font-size: 14px;
+
+  a {
+    color: var(--select-option-description-link-color);
+    text-decoration: underline;
+  }
 }
 
 .option {
