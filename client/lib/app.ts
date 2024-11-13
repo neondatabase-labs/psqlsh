@@ -48,6 +48,18 @@ export class App {
         inputNode.focus();
       }, 1);
     });
+    document.body.addEventListener("keydown", (event) => {
+      const selection = document.getSelection();
+      if (
+        selection &&
+        selection.rangeCount > 0 &&
+        !selection?.getRangeAt(0)?.collapsed &&
+        !(event.ctrlKey || event.metaKey)
+      ) {
+        inputNode.focus();
+      }
+      return;
+    });
     appNode.appendChild(inputNode);
     this.inputManager = new InputManager(inputNode);
     this.termWrapper = new TermWrapper(appNode, this.inputManager);
