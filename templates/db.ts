@@ -20,6 +20,11 @@ const db = [
     name: "Netflix",
     description: "A dataset of Netflix movies and TV shows.",
   },
+  {
+    file: "pgrag.sql",
+    name: "pg_rag demo",
+    description: "A demo database for the pg_rag extension.",
+  },
 ];
 
 export default db;
