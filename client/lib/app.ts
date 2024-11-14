@@ -178,6 +178,7 @@ export class App {
       (template) => template.name === selectedTemplate.value,
     )?.branch;
     analytics.track("template_selected", { template: selectedTemplate.value });
+    select.disable();
   }
 
   async start() {

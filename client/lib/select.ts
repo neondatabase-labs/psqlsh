@@ -9,6 +9,7 @@ export class Select {
   currentIndex = 0;
   selectNode: HTMLElement;
   private onChoice?: (option: SelectOption) => void;
+  private disabled = false;
 
   constructor(
     private appNode: HTMLElement,
@@ -40,11 +41,14 @@ export class Select {
         optionDescriptionNode.innerHTML = option.description;
         optionNode.appendChild(optionDescriptionNode);
       }
-      optionValueNode.addEventListener("click", () => {
-        if (this.onChoice) {
+      const onOptionClick = () => {
+        if (this.onChoice && !this.disabled) {
+          this.currentIndex = index;
+          this.render();
           this.onChoice(option);
         }
-      });
+      };
+      optionValueNode.addEventListener("click", onOptionClick);
     });
 
     this.registerHandlers();
@@ -72,7 +76,7 @@ export class Select {
   };
 
   onEnter = () => {
-    if (this.onChoice) {
+    if (this.onChoice && !this.disabled) {
       this.onChoice(this.options[this.currentIndex]);
     }
   };
@@ -103,5 +107,9 @@ export class Select {
   destroy() {
     this.unregisterHandlers();
     this.selectNode.remove();
+  }
+
+  disable() {
+    this.disabled = true;
   }
 }
