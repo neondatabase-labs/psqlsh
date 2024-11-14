@@ -198,7 +198,7 @@ export class App {
     inputManager.init();
     termWrapper.init();
     if (this.appMode === AppMode.Templates) {
-      termWrapper.writeln("Welcome to Neon! To start, select a template");
+      termWrapper.writeln("Welcome to Neon! To start, select a dataset:");
       await this.pickTemplate();
     } else {
       termWrapper.write("Welcome to Neon! To start, press Enter");
