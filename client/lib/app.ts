@@ -157,7 +157,7 @@ export class App {
       } catch (error: any) {
         termWrapper.write("ERROR: ", Color.Red);
         termWrapper.writeln(error.message);
-        if ("hint" in error) {
+        if ("hint" in error && error.hint) {
           termWrapper.write("HINT: ", Color.Yellow);
           termWrapper.writeln(error.hint);
         }
