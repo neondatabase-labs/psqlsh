@@ -102,6 +102,7 @@ export class App {
       termWrapper.write(`psql (Neon, server `);
       termWrapper.write(rows[0].server_version, Color.Green);
       termWrapper.writeln(`)`);
+      pgClient.release();
     } catch (error: any) {
       termWrapper.writeln(`ERROR: ${error.message}`);
       analytics.track("database_connection_error", { message: error.message });

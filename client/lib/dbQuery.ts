@@ -9,6 +9,9 @@ export async function* performDbQuery(
   onIsTransaction: (isTransaction: boolean) => void,
 ) {
   const pgClient = await pool.connect();
+  pgClient.on("error", (err) => {
+    console.log("Unexpected error on client", err);
+  });
   // deal with backslash describe commands
   if (query.startsWith("\\")) {
     let descriptiveText = "";
