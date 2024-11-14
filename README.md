@@ -21,7 +21,8 @@ After creation, you can execute different queries and do whatever you want. Afte
 - Instant fresh database spin-up
 
 ## How does it work
-This project is powered by <a href="https://neon.tech" target="_blank">Neon</a>. It uses Neon instant branching feature to create a new database for each session
+This project is powered by <a href="https://neon.tech" target="_blank">Neon</a>. It uses Neon instant branching feature to create a new database for each session.
+To connect to the database we use the [Neon serverless driver](https://github.com/neondatabase/serverless).
 
 ## Disclaimer
 This project is at early stage, some problems may occur. If you find a bug, please report it in the issues section.
