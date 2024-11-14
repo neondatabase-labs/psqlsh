@@ -15,3 +15,4 @@ export const analytics = AnalyticsBrowser.load(
 );
 
 analytics.identify();
+analytics.page();
