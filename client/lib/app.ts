@@ -35,7 +35,7 @@ export class App {
     const inputNode = document.createElement("textarea");
     inputNode.classList.add("terminal-input-hidden");
     inputNode.setAttribute("tabindex", "-1");
-    document.body.addEventListener("click", () => {
+    appNode.addEventListener("click", () => {
       const selection = document.getSelection();
       if (
         selection &&
@@ -63,6 +63,17 @@ export class App {
     appNode.appendChild(inputNode);
     this.inputManager = new InputManager(inputNode);
     this.termWrapper = new TermWrapper(appNode, this.inputManager);
+    document.getElementById("info")!.addEventListener("click", () => {
+      this.showBanner();
+    });
+    document
+      .getElementById("back")!
+      .addEventListener("click", () => this.hideBanner());
+    document.addEventListener("keydown", (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        this.hideBanner();
+      }
+    });
   }
 
   async startConnection() {
@@ -195,18 +206,6 @@ export class App {
       await termWrapper.waitLine();
     }
 
-    document
-      .getElementById("info")!
-      .addEventListener("click", () => this.showBanner());
-    document
-      .getElementById("back")!
-      .addEventListener("click", () => this.hideBanner());
-    document.addEventListener("keydown", (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        this.hideBanner();
-      }
-    });
-
     while (true) {
       analytics.track("new_connection");
       try {
@@ -224,6 +223,9 @@ export class App {
   }
 
   hideBanner() {
+    if (!document.body.classList.contains("banner-visible")) {
+      return;
+    }
     analytics.track("info_banner_hidden");
     document.body.classList.remove("banner-visible");
     this.inputManager.focus();
