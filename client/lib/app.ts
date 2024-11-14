@@ -161,7 +161,10 @@ export class App {
           termWrapper.write("HINT: ", Color.Yellow);
           termWrapper.writeln(error.hint);
         }
-        analytics.track("query_error", { message: error.message });
+        analytics.track("query_error", {
+          message: error.message,
+          code: error.code,
+        });
         if (isConnectionError(error)) {
           termWrapper.writeln("To start a new connection, press Enter");
           return;
