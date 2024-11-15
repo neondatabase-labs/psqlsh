@@ -1,4 +1,4 @@
-# psql.sh - browser native PostgreSQL command line client
+# [psql.sh](https://psql.sh) - browser native PostgreSQL command line client
 
 This project aims to provide a browser native psql-like experience.
 
