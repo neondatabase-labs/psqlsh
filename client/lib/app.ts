@@ -147,7 +147,7 @@ export class App {
             termWrapper.writeln(output);
             if (limit-- <= 0) {
               termWrapper.writeln(
-                "The query returned more than 1000 rows. Showing only the first 1000 rows.",
+                "Result is too large. Showing only the first 1000 lines.",
               );
               break;
             }
