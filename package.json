@@ -29,6 +29,7 @@
   "devDependencies": {
     "@peterek/vite-plugin-favicons": "^2.0.0",
     "@types/node": "^22.7.3",
+    "jsdom": "^25.0.1",
     "vite": "^5.4.7"
   },
   "dependencies": {

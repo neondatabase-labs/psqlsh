@@ -8,7 +8,7 @@ const mode: AppMode = import.meta.env.VITE_APP_MODE ?? AppMode.Normal;
 const app = new App(mode, document.getElementById("app")!);
 
 app.start();
-// @ts-ignore
+// @ts-expect-error window is not typed
 window.app = app;
 document.querySelectorAll(".signup").forEach((el) => {
   el.addEventListener("click", () => {
