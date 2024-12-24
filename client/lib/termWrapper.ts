@@ -11,6 +11,7 @@ export class TermWrapper {
   private historyIndex = 0;
   private undoHistoryLine = "";
   private newLineListeners: ((line: string) => void)[] = [];
+  private keywords: Set<string> = new Set();
 
   constructor(
     private appNode: HTMLElement,
@@ -19,7 +20,7 @@ export class TermWrapper {
 
   addLine() {
     this.inputManager.resetText("");
-    let showCursor = this.currentLine?.classList.contains("cursor");
+    const showCursor = this.currentLine?.classList.contains("cursor");
     if (showCursor) {
       this.hideCursor();
     }
@@ -38,7 +39,28 @@ export class TermWrapper {
   }
 
   renderCurrentPrompt() {
-    this.currentLineBuffer = [new TextChunk(this.currentLinePrompt)];
+    const regex = /\W/g;
+    const chunks: TextChunk[] = [];
+    let currentIdx = 0;
+    while (true) {
+      const match = regex.exec(this.currentLinePrompt);
+      const nextIdx = match ? match.index : this.currentLinePrompt.length;
+      const word = this.currentLinePrompt.slice(currentIdx, nextIdx);
+      chunks.push(
+        new TextChunk(
+          word,
+          this.keywords.has(word.toLowerCase()) ? Color.LightGreen : undefined,
+        ),
+      );
+      if (match) {
+        chunks.push(new TextChunk(match[0]));
+        currentIdx = nextIdx + 1;
+      } else {
+        break;
+      }
+    }
+
+    this.currentLineBuffer = chunks;
     this.renderCurrentLine();
   }
 
@@ -119,6 +141,11 @@ export class TermWrapper {
         this.renderCurrentPrompt();
       }
     });
+    fetch("/keywords.json")
+      .then((res) => res.json())
+      .then(({ keywords }) => {
+        this.keywords = new Set(keywords);
+      });
   }
 
   startPromptMode(promptText: string = "") {

@@ -1,4 +1,4 @@
-import { Pool } from "@neondatabase/serverless";
+import { Pool, DatabaseError } from "@neondatabase/serverless";
 import * as Sentry from "@sentry/browser";
 
 import { TermWrapper } from "./termWrapper";
@@ -88,9 +88,10 @@ export class App {
         sourceBranch: this.sourceBranch,
       });
       connectionString = response.connectionString;
-    } catch (error: any) {
-      termWrapper.writeln(`ERROR: ${error.message}`);
-      analytics.track("database_issue_error", { message: error.message });
+    } catch (error) {
+      const message = (error as Error).message;
+      termWrapper.writeln(`ERROR: ${message}`);
+      analytics.track("database_issue_error", { message });
       console.log("Error:", error);
       return;
     }
@@ -114,9 +115,10 @@ export class App {
       termWrapper.write(rows[0].server_version, Color.Green);
       termWrapper.writeln(`)`);
       pgClient.release();
-    } catch (error: any) {
-      termWrapper.writeln(`ERROR: ${error.message}`);
-      analytics.track("database_connection_error", { message: error.message });
+    } catch (error) {
+      const message = (error as Error).message;
+      termWrapper.writeln(`ERROR: ${message}`);
+      analytics.track("database_connection_error", { message });
       console.log("Error:", error);
       return;
     }
@@ -154,22 +156,24 @@ export class App {
           }
           analytics.track("query_finished");
         }
-      } catch (error: any) {
+      } catch (error) {
+        const pgError = error as DatabaseError;
         termWrapper.write("ERROR: ", Color.Red);
-        termWrapper.writeln(error.message);
-        if ("hint" in error && error.hint) {
+        termWrapper.writeln(pgError.message);
+
+        if (pgError.hint) {
           termWrapper.write("HINT: ", Color.Yellow);
-          termWrapper.writeln(error.hint);
+          termWrapper.writeln(pgError.hint);
         }
         analytics.track("query_error", {
-          message: error.message,
-          code: error.code,
+          message: pgError.message,
+          code: pgError.code,
         });
         if (isConnectionError(error)) {
           termWrapper.writeln("To start a new connection, press Enter");
           return;
         }
-        if (!("code" in error)) {
+        if (!("code" in pgError)) {
           Sentry.captureException(error);
         }
       } finally {
@@ -213,7 +217,7 @@ export class App {
       analytics.track("new_connection");
       try {
         await this.startConnection();
-      } catch (error: any) {
+      } catch (error) {
         Sentry.captureException(error);
       }
       await termWrapper.waitLine();
