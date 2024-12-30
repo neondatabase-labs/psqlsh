@@ -1,3 +1,5 @@
+<img width="250px" src="https://neon.tech/brand/neon-logo-dark-color.svg" />
+
 # [psql.sh](https://psql.sh) - browser native PostgreSQL command line client
 
 This project gives you a browser-native, psql-like experience for working with a Postgres database, without having to install anything.
