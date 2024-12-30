@@ -124,8 +124,30 @@ export class App {
     }
     analytics.track("database_connected");
     termWrapper.writeln('Type "\\?" for help.');
+    termWrapper.writeln(
+      'You can also type "\\ai &lt;your query description&gt;" to generate SQL with AI.',
+    );
     termWrapper.addLine();
     let isTransaction = false;
+    const performQuery = async (query: string) => {
+      termWrapper.hideCursor();
+      let limit = 1000;
+      for await (const output of performDbQuery(
+        pgPool,
+        query,
+        (isTransactionIn) => {
+          isTransaction = isTransactionIn;
+        },
+      )) {
+        termWrapper.writeln(output);
+        if (limit-- <= 0) {
+          termWrapper.writeln(
+            "Result is too large. Showing only the first 1000 lines.",
+          );
+          break;
+        }
+      }
+    };
     while (true) {
       termWrapper.startPromptMode(`neondb=${isTransaction ? "*" : ""}> `);
       termWrapper.showCursor();
@@ -136,24 +158,36 @@ export class App {
       try {
         if (line === "\\q") {
           this.showBanner();
-        } else {
-          termWrapper.hideCursor();
-          let limit = 1000;
-          for await (const output of performDbQuery(
-            pgPool,
-            line,
-            (isTransactionIn) => {
-              isTransaction = isTransactionIn;
-            },
-          )) {
-            termWrapper.writeln(output);
-            if (limit-- <= 0) {
+        } else if (line.startsWith("\\ai ")) {
+          analytics.track("ai_query_started");
+          const generatedSql = await client.textToSql.mutate({
+            text: line.slice(4),
+          });
+          if (generatedSql.startsWith("SQL: ")) {
+            const sql = generatedSql.slice(5);
+            termWrapper.addLine();
+            termWrapper.write("Generated SQL: `");
+            termWrapper.writeChunks(termWrapper.wrapSql(sql));
+            termWrapper.writeln("`");
+            termWrapper.addLine();
+            await performQuery(sql);
+            analytics.track("ai_query_finished");
+          } else {
+            if (generatedSql.startsWith("ERROR: ")) {
+              termWrapper.writeln(generatedSql, Color.Red);
+              // limit too big payload
+              analytics.track("ai_query_error", {
+                error: generatedSql.slice(0, 100),
+              });
+            } else {
               termWrapper.writeln(
-                "Result is too large. Showing only the first 1000 lines.",
+                "Sorry, we were unable to successfully convert your prompt to SQL.",
               );
-              break;
+              analytics.track("ai_query_error", { error: generatedSql });
             }
           }
+        } else {
+          await performQuery(line);
           analytics.track("query_finished");
         }
       } catch (error) {

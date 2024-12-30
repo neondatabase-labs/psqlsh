@@ -23,6 +23,9 @@ Once created, you can execute any queries you want. Feel free to explore, experi
 - No installation required
 - Supports most psql backslash commands (inspection commands)
 - Instant database spin-up with each session
+- AI-powered SQL generation:
+    - Type `\ai <your query description>` to get a SQL query generated for you
+    - Example: `\ai find all pokemons`, `\ai create a "users" table with two columns: "id" and "name"`
 
 ## How does it work
 

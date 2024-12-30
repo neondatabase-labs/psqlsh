@@ -39,28 +39,7 @@ export class TermWrapper {
   }
 
   renderCurrentPrompt() {
-    const regex = /\W/g;
-    const chunks: TextChunk[] = [];
-    let currentIdx = 0;
-    while (true) {
-      const match = regex.exec(this.currentLinePrompt);
-      const nextIdx = match ? match.index : this.currentLinePrompt.length;
-      const word = this.currentLinePrompt.slice(currentIdx, nextIdx);
-      chunks.push(
-        new TextChunk(
-          word,
-          this.keywords.has(word.toLowerCase()) ? Color.LightGreen : undefined,
-        ),
-      );
-      if (match) {
-        chunks.push(new TextChunk(match[0]));
-        currentIdx = nextIdx + 1;
-      } else {
-        break;
-      }
-    }
-
-    this.currentLineBuffer = chunks;
+    this.currentLineBuffer = this.wrapSql(this.currentLinePrompt);
     this.renderCurrentLine();
   }
 
@@ -160,12 +139,20 @@ export class TermWrapper {
     this.appNode.classList.remove("prompt-mode");
   }
 
-  write(text: string, color?: Color) {
-    const chunk = new TextChunk(text, color);
-    this.currentLinePrompt += text;
+  writeChunk(chunk: TextChunk) {
+    this.currentLinePrompt += chunk.text;
     this.currentLineBuffer.push(chunk);
     this.inputManager.resetText(this.currentLinePrompt);
     this.renderCurrentLine();
+  }
+
+  writeChunks(chunks: TextChunk[]) {
+    chunks.forEach((chunk) => this.writeChunk(chunk));
+  }
+
+  write(text: string, color?: Color) {
+    const chunk = new TextChunk(text, color);
+    this.writeChunk(chunk);
   }
 
   writeln(text: string, color?: Color) {
@@ -187,5 +174,33 @@ export class TermWrapper {
     return new Promise<string>((resolve) => {
       this.newLineListeners.push(resolve);
     });
+  }
+
+  public wrapSql(sql: string) {
+    const regex = /\W/g;
+    const chunks: TextChunk[] = [];
+    const skipHighlight = sql.trimStart().startsWith("\\");
+    let currentIdx = 0;
+    while (true) {
+      const match = regex.exec(sql);
+      const nextIdx = match ? match.index : sql.length;
+      const word = sql.slice(currentIdx, nextIdx);
+      chunks.push(
+        new TextChunk(
+          word,
+          !skipHighlight && this.keywords.has(word.toLowerCase())
+            ? Color.LightGreen
+            : undefined,
+        ),
+      );
+      if (match) {
+        chunks.push(new TextChunk(match[0]));
+        currentIdx = nextIdx + 1;
+      } else {
+        break;
+      }
+    }
+
+    return chunks;
   }
 }

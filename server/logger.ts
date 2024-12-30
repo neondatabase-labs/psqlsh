@@ -1,4 +1,5 @@
 import { pino } from "pino";
+import { isEnvDev } from "./config";
 
 export const logger = pino({
   name: "psqlsh",
@@ -7,4 +8,5 @@ export const logger = pino({
       level: label,
     }),
   },
+  ...(isEnvDev() ? { transport: { target: "pino-pretty" } } : {}),
 });

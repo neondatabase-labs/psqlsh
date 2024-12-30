@@ -101,6 +101,12 @@ div:focus-visible {
   padding: 16px 32px;
   background-color: var(--header-background-color);
   border-bottom: 1px solid var(--header-border-color);
+
+  .github-icon {
+    width: 24px;
+    height: 24px;
+    vertical-align: -12px;
+  }
 }
 
 .logo {

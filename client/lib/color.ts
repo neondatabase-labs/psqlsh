@@ -7,8 +7,8 @@ export enum Color {
 
 export class TextChunk {
   constructor(
-    private text: string,
-    private color?: Color,
+    public text: string,
+    public color?: Color,
   ) {}
 
   html() {
