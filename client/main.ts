@@ -15,3 +15,9 @@ document.querySelectorAll(".signup").forEach((el) => {
     analytics.track("signup_clicked");
   });
 });
+
+document.querySelectorAll(".github-link").forEach((n) =>
+  n.addEventListener("click", () => {
+    analytics.track("github_clicked");
+  }),
+);

@@ -2,6 +2,7 @@ import { createHTTPServer } from "@trpc/server/adapters/standalone";
 import config from "./config";
 import { logger } from "./logger";
 import { appRouter } from "./router";
+import { createContext } from "./trpc";
 
 const server = createHTTPServer({
   router: appRouter,
@@ -11,12 +12,15 @@ const server = createHTTPServer({
       res.end("OK");
       return;
     }
-    logger.info({ url: req.url }, "incoming request");
     next();
   },
-  onError({ error, path }) {
-    logger.error({ message: error.message, path }, "Request failed");
+  onError({ error, path, ctx }) {
+    (ctx?.logger ?? logger).error(
+      { message: error.message, path },
+      "Request failed",
+    );
   },
+  createContext,
 });
 
 server.listen(config.port);
