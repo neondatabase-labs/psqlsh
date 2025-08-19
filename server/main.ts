@@ -1,27 +1,11 @@
-import { createHTTPServer } from "@trpc/server/adapters/standalone";
+import { serve } from "@hono/node-server";
 import config from "./config";
 import { logger } from "./logger";
-import { appRouter } from "./router";
-import { createContext } from "./trpc";
+import app from "./app";
 
-const server = createHTTPServer({
-  router: appRouter,
-  middleware: async (req, res, next) => {
-    if (req.url === "/health") {
-      res.writeHead(200);
-      res.end("OK");
-      return;
-    }
-    next();
-  },
-  onError({ error, path, ctx }) {
-    (ctx?.logger ?? logger).error(
-      { message: error.message, path },
-      "Request failed",
-    );
-  },
-  createContext,
+serve({
+  fetch: app.fetch,
+  port: config.port,
 });
 
-server.listen(config.port);
 logger.info(`Server started on port ${config.port}`);

@@ -84,10 +84,10 @@ export class App {
     termWrapper.addLine();
     let connectionString: string;
     try {
-      const response = await client.issueDatabase.mutate({
+      const response = await client.issueDatabase({
         sourceBranch: this.sourceBranch,
       });
-      connectionString = response.connectionString;
+      connectionString = response.connectionString!
     } catch (error) {
       const message = (error as Error).message;
       termWrapper.writeln(`ERROR: ${message}`);
@@ -160,7 +160,7 @@ export class App {
           this.showBanner();
         } else if (line.startsWith("\\ai ")) {
           analytics.track("ai_query_started");
-          const generatedSql = await client.textToSql.mutate({
+          const generatedSql = await client.textToSql({
             text: line.slice(4),
           });
           if (generatedSql.startsWith("SQL: ")) {
@@ -217,7 +217,7 @@ export class App {
   }
 
   async pickTemplate() {
-    const templates = await client.listTemplates.query();
+    const templates = await client.listTemplates();
     const select = new Select(
       this.appNode,
       this.inputManager,
