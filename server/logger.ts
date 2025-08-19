@@ -1,5 +1,5 @@
 import { pino } from "pino";
-import { isEnvDev } from "./config";
+import { isEnvDev } from "./config.js";
 
 export const logger = pino({
   name: "psqlsh",
