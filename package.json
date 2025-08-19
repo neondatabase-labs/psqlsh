@@ -2,6 +2,7 @@
   "name": "psqlsh",
   "version": "0.0.1",
   "description": "A page that will display a psql terminal app and create a database for every user",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev:client": "vite ./client",
