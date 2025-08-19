@@ -16,6 +16,7 @@ import { generateBranchName } from "./templates";
 
 type Variables = {
   logger: any;
+  session: any;
 };
 
 const app = new Hono<{ Variables: Variables }>();
