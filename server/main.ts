@@ -1,7 +1,7 @@
 import { serve } from "@hono/node-server";
-import config from "./config";
-import { logger } from "./logger";
-import app from "./app";
+import config from "./config.js";
+import { logger } from "./logger.js";
+import app from "./app.js";
 
 serve({
   fetch: app.fetch,

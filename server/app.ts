@@ -2,17 +2,19 @@ import { randomBytes } from "node:crypto";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { zValidator } from "@hono/zod-validator";
+import { serveStatic } from "@hono/node-server/serve-static"
 import { sessionMiddleware } from "hono-sessions";
 import { MemoryStore } from "hono-sessions";
 import z from "zod";
 import { ContentType, EndpointType } from "@neondatabase/api-client";
 import { isAxiosError } from "axios";
+import * as fs from "fs";
 
-import config from "./config";
-import { logger } from "./logger";
-import { apiClient } from "./apiClient";
-import templates from "../templates/db";
-import { generateBranchName } from "./templates";
+import config from "./config.js";
+import { logger } from "./logger.js";
+import { apiClient } from "./apiClient.js";
+import templates from "../templates/db.js";
+import { generateBranchName } from "./templates.js";
 
 type Variables = {
   logger: any;
@@ -20,6 +22,18 @@ type Variables = {
 };
 
 const app = new Hono<{ Variables: Variables }>();
+
+// Serve static files first, before other middleware
+app.use("/*", serveStatic({
+  root: "./public",
+  index: "index.html"
+}));
+
+app.get("/ls", (c) => {
+  // List all files in the work dir
+  const files = fs.readdirSync("./");
+  return c.json(files);
+});
 
 // CORS middleware
 app.use("*", cors());
