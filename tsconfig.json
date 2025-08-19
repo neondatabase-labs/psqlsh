@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "lib": [
+      "esnext"
+    ],
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "index.ts",
+    "server/**/*.ts"
+  ]
+}
