@@ -21,7 +21,13 @@ type Variables = {
   session: any;
 };
 
-const app = new Hono<{ Variables: Variables }>();
+const app = new Hono<{ Variables: Variables }>().basePath("/api");
+
+app.get("/ls", (c) => {
+  // List all files in the work dir
+  const files = fs.readdirSync("./");
+  return c.json(files);
+});
 
 // Serve static files first, before other middleware
 app.use("/*", serveStatic({
@@ -70,7 +76,7 @@ app.get("/health", (c) => c.text("OK"));
 
 // Issue database endpoint
 app.post(
-  "/api/issue-database",
+  "/issue-database",
   zValidator(
     "json",
     z.object({
@@ -136,7 +142,7 @@ app.post(
 );
 
 // List templates endpoint
-app.get("/api/templates", (c) => {
+app.get("/templates", (c) => {
   const templateList = templates.map(({ name, description }) => ({
     name,
     description,
@@ -147,7 +153,7 @@ app.get("/api/templates", (c) => {
 
 // Text to SQL endpoint
 app.post(
-  "/api/text-to-sql",
+  "/text-to-sql",
   zValidator(
     "json",
     z.object({
