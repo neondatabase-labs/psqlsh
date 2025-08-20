@@ -1,2 +1,0 @@
-(function(){try{var e=typeof window<"u"?window:typeof global<"u"?global:typeof self<"u"?self:{},d=new e.Error().stack;d&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[d]="3cef87f8-3be2-4315-bbde-1ab61a918b19",e._sentryDebugIdIdentifier="sentry-dbid-3cef87f8-3be2-4315-bbde-1ab61a918b19")}catch{}})();function o(e,d){var b,n;return typeof(d==null?void 0:d.enabled)=="boolean"?d.enabled:(n=(b=e==null?void 0:e.__default)===null||b===void 0?void 0:b.enabled)!==null&&n!==void 0?n:!0}export{o as i};
-//# sourceMappingURL=is-plan-event-enabled-DZPL-m0P.js.map
