@@ -33,7 +33,7 @@
     "jsdom": "^25.0.1",
     "pino-pretty": "^13.0.0",
     "typescript": "^5.9.2",
-    "vite": "^5.4.14"
+    "vite": "^5.4.20"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.0",
